@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import rospy
 import numpy as np
 from raspi import *
@@ -7,7 +7,7 @@ from controller import *
 
 #This script used for experimenting with simulation.
 
-N = 20
+N = 4
 
 if __name__ == '__main__':
     try:
@@ -21,6 +21,10 @@ if __name__ == '__main__':
             ])
         flag = 0
         x_goal = p_circ[:, :N] 
+        '''
+        position = [bot1, bot2, bot3, bot4]
+        x_goal = [goal1, goal2, goal3, goal4]
+        ''' 
         while not rospy.is_shutdown():
             pose = getposition(N)
             print (np.column_stack((pose[0:2])))
