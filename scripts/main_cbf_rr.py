@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pandas import array
 import rospy
 import numpy as np
 from controller import *
@@ -8,7 +9,7 @@ from random import uniform
 
 # This script used for experimenting with real robots.
 
-N = 4  # no. of robots
+N = 6  # no. of robots
 
 if __name__ == '__main__':
     try:
@@ -24,8 +25,8 @@ if __name__ == '__main__':
         # x_goal = np.array([[uniform(0.6,0.7), uniform(-0.1,0.1), uniform(-0.6,-0.7)], [uniform(0.5,0.6), uniform(-0.5,-0.6), uniform(0.5,0.6)]]) # three bots
         # x_goal = np.array([[0.6, 0, -0.6], [0.5, -0.5, 0.5]]) # three bots / triangle
         # x_goal = np.array([[0.6, 0, -0.6], [0.5, 0.5, 0.5]]) # three bots / bottom line
-        x_goal = np.array(
-            [[0.85, -0.85, 0, 0], [0, 0, -0.65, 0.65]])  # four bots
+        # x_goal = np.array([[0.85, -0.85, 0, 0], [0, 0, -0.65, 0.65]])  # four bots
+        x_goal = np,array([[0.85, 0.85, -0.85, -0.85, 0, 0], [0.2, -0.2, 0.2, -0.2, -0.65, 0.65]])  # six bots
 
         while not rospy.is_shutdown():
             pose = get_robot_position(N)
@@ -54,16 +55,17 @@ if __name__ == '__main__':
                 # x_goal = np.array([[uniform(0.6,0.7), uniform(-0.1,0.1), uniform(-0.6,-0.7)], [uniform(0.50,0.55), uniform(-0.5,-0.6), uniform(0.5,0.6)]]) # three bots
                 # x_goal = np.array([[0.6, 0, -0.6], [0.5, -0.5, 0.5]]) # three bots  / triangle
                 # x_goal = np.array([[0.6, 0, -0.6], [0.5, 0.5, 0.5]]) # three bots / bottom line
-                x_goal = np.array(
-                    [[0.85, -0.85, 0, 0], [0, 0, -0.65, 0.65]])  # four bots
+                # x_goal = np.array([[0.85, -0.85, 0, 0], [0, 0, -0.65, 0.65]])  # four bots
+                x_goal = np,array([[0.85, 0.85, -0.85, -0.85, 0, 0], [0.2, -0.2, 0.2, -0.2, -0.65, 0.65]])  # six bots
             else:
                 # x_goal = np.array([[-0.7, 0.7], [0, 0]]) # two bots
                 # x_goal = np.array([[uniform(-0.6,-0.7), uniform(0.6,0.7)], [uniform(0.1,-0.1), uniform(0.1,-0.1)]]) # two bots
                 # x_goal = np.array([[uniform(-0.6,-0.7), uniform(-0.1,0.1), uniform(0.6,0.7)], [uniform(-0.50,-0.55), uniform(0.5,0.6), uniform(-0.5,-0.6)]]) # three bots
                 # x_goal = np.array([[-0.6, 0, 0.6], [-0.5, 0.5, -0.5]]) # three bots  / triangle
                 # x_goal = np.array([[-0.6, 0, 0.6], [-0.5, -0.5, -0.5]]) # three bots / bottom line
-                x_goal = np.array(
-                    [[-0.85, 0.85, 0, 0], [0, 0, 0.65, -0.65]])  # four bots
+                # x_goal = np.array([[-0.85, 0.85, 0, 0], [0, 0, 0.65, -0.65]])  # four bots
+                x_goal = np,array([[-0.85, -0.85, 0.85, 0.85, 0, 0], [0.2, -0.2, 0.2, -0.2, 0.65, -0.65]])  # six bots
+
 
             dxu = robotFeedbackControl(pose, x_goal)
             dxi = uni_to_si_dyn(dxu, pose)
