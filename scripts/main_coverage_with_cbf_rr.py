@@ -14,7 +14,7 @@ from controller import *
 # make voronoi figure smaller
 # it should work
 
-N = 20
+N = 4
 LOG_DIR = '/home/robolab/raspi_ws/src/coverage_control/Data'
 
 if __name__ == '__main__':
@@ -32,11 +32,13 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             plotting(fig, ax, 50)
+            # getposition(N) - simulation 
+            # get_robot_position(N) - experimental
             pose = getposition(N) # if turn into experimental, replace to get_robot_position(N)
             # dxu = robotFeedbackControl(pose, x_goal)
             pose_si = uni_to_si_states(pose)
-            x_traj = np.append(x_traj, pose[0:1], axis=0) # csv
-            y_traj = np.append(y_traj, pose[1:2], axis=0) # csv
+            #x_traj = np.append(x_traj, pose[0:1], axis=0) # csv
+            #y_traj = np.append(y_traj, pose[1:2], axis=0) # csv
 
             (area, shape, poly2pt, centroids) = gen_voronoi(pose) # plotting related 
             plot_voronoi_polys_with_points_in_area(ax, area, shape, np.column_stack((pose[0:2])), poly2pt,voronoi_edgecolor='black', points_color='black', 
@@ -45,9 +47,10 @@ if __name__ == '__main__':
                 c1 = x
                 ax.plot(c1[0],c1[1], 'rs', markersize = 12, alpha = 0.4)
 
-            if(np.linalg.norm(centroids - pose_si) < 0.01):
-                np.savetxt(LOG_DIR+'/X_traj.csv', x_traj, delimiter=' , ') # csv 
-                np.savetxt(LOG_DIR+'/Y_traj.csv', y_traj, delimiter=' , ') # csv
+            # 0.01
+            if(np.linalg.norm(centroids - pose_si) < 0.0001):
+                #np.savetxt(LOG_DIR+'/X_traj.csv', x_traj, delimiter=' , ') # csv 
+                #np.savetxt(LOG_DIR+'/Y_traj.csv', y_traj, delimiter=' , ') # csv
                 rospy.signal_shutdown('End of testing')
                 pass
 

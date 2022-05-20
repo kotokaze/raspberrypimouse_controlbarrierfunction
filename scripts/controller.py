@@ -4,6 +4,7 @@ from cvxopt import matrix, sparse
 from cvxopt.solvers import qp, options
 from scipy.integrate import odeint
 from math import *
+import math
 
 
 def si_position_controller(xi, positions, x_velocity_gain=1, y_velocity_gain=1, velocity_magnitude_limit=0.5):
@@ -22,7 +23,14 @@ def si_position_controller(xi, positions, x_velocity_gain=1, y_velocity_gain=1, 
 
     return dxi
 
-def si_barrier_cert(dxi, x, barrier_gain=80, safety_radius=0.12, magnitude_limit=0.25):
+'''
+barrier_gain: double (controls how quickly agents can approach each other.  lower = slower)
+safety_radius: double (how far apart the agents will stay)
+magnitude_limit: how fast the robot can move linearly.
+'''
+
+# safety_radius=0.12
+def si_barrier_cert(dxi, x, barrier_gain=40, safety_radius=0.12, magnitude_limit=0.25):
     N = dxi.shape[1]
     num_constraints = int(comb(N, 2))
     A = np.zeros((num_constraints, 2*N))
@@ -51,13 +59,14 @@ def si_barrier_cert(dxi, x, barrier_gain=80, safety_radius=0.12, magnitude_limit
 
     return np.reshape(result, (2, -1), order='F')
 
+# control the bots velocity for real simulation
 def robotFeedbackControl(xi, positions): #P controller
-    
+    # xi = pose, positions = x_goal
     #Feedback control parameter for REAL ROBOT
-    GOAL_DIST_THRESHOLD=0.08
+    GOAL_DIST_THRESHOLD=0.09 # 0.08
     K_RO=2
     K_ALPHA=8
-    V_CONST=0.25
+    V_CONST=0.10 # 0.25
 
     #Feedback control parameter for SIMULATED ROBOT
     # GOAL_DIST_THRESHOLD=0.05
@@ -68,12 +77,16 @@ def robotFeedbackControl(xi, positions): #P controller
     _,N = np.shape(xi)
     dxi = np.zeros((2, N))
 
+    # threshold magnitude
     norms = np.linalg.norm(xi[0:2, 0:N]-positions, axis = 0)
+    # Calculate control input
+    # dxi[0][:] = x_velocity_gain*(positions[0][:]-xi[0][:])
     lamda = np.arctan2(positions[1][:]-xi[1][:], positions[0][:]-xi[0][:])
     alpha = np.array([(lamda[:] - xi[2][:] + pi) % (2 * pi) - pi]) #-360degrees
     v = K_RO * norms
     w = K_ALPHA * alpha
 
+    # Calculate control input
     dxi[0][:] = v[:] / abs(v[:]) * V_CONST
     dxi[1][:] = w[:] / abs(v[:]) * V_CONST
 
@@ -135,6 +148,23 @@ def cal_tra_fatii(new_coords,new_centroids):
         y_list_y = [new_coords[i][1],0,0,0,0,0,0,0,0,0,0]
         result_x = odeint(diff_equation_fatii, y_list_x, t, args=(new_coords[i][0]-new_centroids[i][0],omega))
         result_y = odeint(diff_equation_fatii, y_list_y, t, args=(new_coords[i][1]-new_centroids[i][1],omega))
+        result_xt = result_x[:,0]
+        result_yt = result_y[:,0]
+        new_result = np.vstack((np.array(result_xt), np.array(result_yt))).T
+        point_lists.append(list(new_result))
+    return point_lists
+
+# different cal_tra_fatti
+def cal_tra(new_coords,new_centroids, old_centroids):
+    T=2 #单位是秒
+    t=np.linspace(0,T,num=300)
+    omega = math.pi*2/T
+    point_lists = []
+    for i in range(len(new_coords)):
+        y_list_x = [new_coords[i][0],0,0,0,0,0,0,0,0,0,0]
+        y_list_y = [new_coords[i][1],0,0,0,0,0,0,0,0,0,0]
+        result_x = odeint(diff_equation_fatii, y_list_x, t, args=(new_coords[i][0]-new_centroids[i][0],omega, new_centroids[i][0] - old_centroids[i][0]))
+        result_y = odeint(diff_equation_fatii, y_list_y, t, args=(new_coords[i][1]-new_centroids[i][1],omega, new_centroids[i][0] - old_centroids[i][0]))
         result_xt = result_x[:,0]
         result_yt = result_y[:,0]
         new_result = np.vstack((np.array(result_xt), np.array(result_yt))).T

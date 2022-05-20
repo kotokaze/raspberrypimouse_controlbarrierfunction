@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import MultipleLocator
 
 def gen_voronoi(pose):
-    outer = [(0, 10), (10, -10), (-10, -10)]
+    #outer = [(0, 10), (10, -10), (-10, -10)]
+    outer = [(-0.7, -0.6), (0.7, -0.6), (0.7, 0.6), (-0.7, 0.6)]
     pose = np.column_stack((pose[0:2]))
     area_shape = Polygon(outer)
     poly_shapes, pts, poly_to_pt_assignments = voronoi_regions_from_coords(pose, area_shape, accept_n_coord_duplicates=0)
@@ -31,6 +32,7 @@ def match_pair(poly_shapes, new_coords, centroids):
     sorted_cen = np.column_stack((sorted_centroids))
     return sorted_cen
 
+# yeah for cvt (simulation)
 def reshape_coords(pose):
     coords = []
     for n in pose:
@@ -39,9 +41,12 @@ def reshape_coords(pose):
     return coords
 
 def plotting(fig, ax, iter, save_fig=False):
-    major_locator=MultipleLocator(4)
-    ax.set_xlim([-13,13])
-    ax.set_ylim([-13,13])
+    # major_locator=MultipleLocator(4)
+    major_locator=MultipleLocator(0.2)
+    # ax.set_xlim([-13,13])
+    # ax.set_ylim([-13,13])
+    ax.set_xlim([-1,1])
+    ax.set_ylim([-1,1])
     font = {'size':13}
     ax.xaxis.set_major_locator(major_locator)
     ax.yaxis.set_major_locator(major_locator)
